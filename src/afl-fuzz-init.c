@@ -2374,7 +2374,7 @@ void setup_dirs_fds(afl_state_t *afl) {
             "# relative_time, cycles_done, cur_item, corpus_count, "
             "pending_total, pending_favs, map_size, saved_crashes, "
             "saved_hangs, max_depth, execs_per_sec, total_execs, edges_found, "
-            "total_crashes, servers_count");
+            "total_crashes, total_gen, servers_count");
 
     if (afl->san_binary_length) {
 
@@ -2405,16 +2405,16 @@ void setup_dirs_fds(afl_state_t *afl) {
 
 #ifdef INTROSPECTION
 
-  tmp = alloc_printf("%s/plot_det_data", afl->out_dir);
+  // tmp = alloc_printf("%s/plot_det_data", afl->out_dir);
 
-  int fd = open(tmp, O_WRONLY | O_CREAT, DEFAULT_PERMISSION);
-  if (fd < 0) { PFATAL("Unable to create '%s'", tmp); }
-  ck_free(tmp);
+  // int fd = open(tmp, O_WRONLY | O_CREAT, DEFAULT_PERMISSION);
+  // if (fd < 0) { PFATAL("Unable to create '%s'", tmp); }
+  // ck_free(tmp);
 
-  afl->fsrv.det_plot_file = fdopen(fd, "w");
-  if (!afl->fsrv.det_plot_file) { PFATAL("fdopen() failed"); }
+  // afl->fsrv.det_plot_file = fdopen(fd, "w");
+  // if (!afl->fsrv.det_plot_file) { PFATAL("fdopen() failed"); }
 
-  if (afl->in_place_resume) { fseek(afl->fsrv.det_plot_file, 0, SEEK_END); }
+  // if (afl->in_place_resume) { fseek(afl->fsrv.det_plot_file, 0, SEEK_END); }
 
 #endif
 

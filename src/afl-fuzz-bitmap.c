@@ -472,7 +472,17 @@ u8 __attribute__((hot)) save_if_interesting(afl_state_t *afl, void *mem,
   u8 classified = 0;
 
   if (unlikely(len == 0)) { return 0; }
-
+  #ifdef INTROSPECTION
+    // ===== Log LENGTHS of ALL testcases ==== //
+    if (afl->n_mut_idx >= N_MUT_SIZE) {
+      fwrite(afl->n_mut, sizeof(u32), N_MUT_SIZE, afl->introspection_file);
+      afl->n_mut_idx = 0;
+    }
+    // fprintf(afl->introspection_file, "L %u\n", len);
+    afl->n_mut[afl->n_mut_idx] = afl->mutated_bytes;
+    ++afl->n_mut_idx;
+    ++afl->gen_tc_total;
+  #endif
   if (unlikely(fault == FSRV_RUN_TMOUT && afl->afl_env.afl_ignore_timeouts)) {
 
     if (unlikely(afl->schedule >= FAST && afl->schedule <= RARE)) {
@@ -715,31 +725,31 @@ u8 __attribute__((hot)) save_if_interesting(afl_state_t *afl, void *mem,
     }
 
 #ifdef INTROSPECTION
-    if (afl->custom_mutators_count && afl->current_custom_fuzz) {
+    // if (afl->custom_mutators_count && afl->current_custom_fuzz) {
 
-      LIST_FOREACH(&afl->custom_mutator_list, struct custom_mutator, {
+    //   LIST_FOREACH(&afl->custom_mutator_list, struct custom_mutator, {
 
-        if (afl->current_custom_fuzz == el && el->afl_custom_introspection) {
+    //     if (afl->current_custom_fuzz == el && el->afl_custom_introspection) {
 
-          const char *ptr = el->afl_custom_introspection(el->data);
+    //       const char *ptr = el->afl_custom_introspection(el->data);
 
-          if (ptr != NULL && *ptr != 0) {
+    //       if (ptr != NULL && *ptr != 0) {
 
-            fprintf(afl->introspection_file, "QUEUE CUSTOM %s = %s\n", ptr,
-                    afl->queue_top->fname);
+    //         fprintf(afl->introspection_file, "QUEUE CUSTOM %s = %s\n", ptr,
+    //                 afl->queue_top->fname);
 
-          }
+    //       }
 
-        }
+    //     }
 
-      });
+    //   });
 
-    } else if (afl->mutation[0] != 0) {
+    // } else if (afl->mutation[0] != 0) {
 
-      fprintf(afl->introspection_file, "QUEUE %s = %s\n", afl->mutation,
-              afl->queue_top->fname);
+    //   fprintf(afl->introspection_file, "QUEUE %s = %s\n", afl->mutation,
+    //           afl->queue_top->fname);
 
-    }
+    // }
 
 #endif
 
@@ -811,31 +821,31 @@ may_save_fault:
 
       is_timeout = 0x80;
 #ifdef INTROSPECTION
-      if (afl->custom_mutators_count && afl->current_custom_fuzz) {
+      // if (afl->custom_mutators_count && afl->current_custom_fuzz) {
 
-        LIST_FOREACH(&afl->custom_mutator_list, struct custom_mutator, {
+      //   LIST_FOREACH(&afl->custom_mutator_list, struct custom_mutator, {
 
-          if (afl->current_custom_fuzz == el && el->afl_custom_introspection) {
+      //     if (afl->current_custom_fuzz == el && el->afl_custom_introspection) {
 
-            const char *ptr = el->afl_custom_introspection(el->data);
+      //       const char *ptr = el->afl_custom_introspection(el->data);
 
-            if (ptr != NULL && *ptr != 0) {
+      //       if (ptr != NULL && *ptr != 0) {
 
-              fprintf(afl->introspection_file,
-                      "UNIQUE_TIMEOUT CUSTOM %s = %s\n", ptr,
-                      afl->queue_top->fname);
+      //         fprintf(afl->introspection_file,
+      //                 "UNIQUE_TIMEOUT CUSTOM %s = %s\n", ptr,
+      //                 afl->queue_top->fname);
 
-            }
+      //       }
 
-          }
+      //     }
 
-        });
+      //   });
 
-      } else if (afl->mutation[0] != 0) {
+      // } else if (afl->mutation[0] != 0) {
 
-        fprintf(afl->introspection_file, "UNIQUE_TIMEOUT %s\n", afl->mutation);
+      //   fprintf(afl->introspection_file, "UNIQUE_TIMEOUT %s\n", afl->mutation);
 
-      }
+      // }
 
 #endif
 
@@ -980,30 +990,30 @@ may_save_fault:
 
       ++afl->saved_crashes;
 #ifdef INTROSPECTION
-      if (afl->custom_mutators_count && afl->current_custom_fuzz) {
+      // if (afl->custom_mutators_count && afl->current_custom_fuzz) {
 
-        LIST_FOREACH(&afl->custom_mutator_list, struct custom_mutator, {
+      //   LIST_FOREACH(&afl->custom_mutator_list, struct custom_mutator, {
 
-          if (afl->current_custom_fuzz == el && el->afl_custom_introspection) {
+      //     if (afl->current_custom_fuzz == el && el->afl_custom_introspection) {
 
-            const char *ptr = el->afl_custom_introspection(el->data);
+      //       const char *ptr = el->afl_custom_introspection(el->data);
 
-            if (ptr != NULL && *ptr != 0) {
+      //       if (ptr != NULL && *ptr != 0) {
 
-              fprintf(afl->introspection_file, "UNIQUE_CRASH CUSTOM %s = %s\n",
-                      ptr, afl->queue_top->fname);
+      //         fprintf(afl->introspection_file, "UNIQUE_CRASH CUSTOM %s = %s\n",
+      //                 ptr, afl->queue_top->fname);
 
-            }
+      //       }
 
-          }
+      //     }
 
-        });
+      //   });
 
-      } else if (afl->mutation[0] != 0) {
+      // } else if (afl->mutation[0] != 0) {
 
-        fprintf(afl->introspection_file, "UNIQUE_CRASH %s\n", afl->mutation);
+      //   fprintf(afl->introspection_file, "UNIQUE_CRASH %s\n", afl->mutation);
 
-      }
+      // }
 
 #endif
       if (unlikely(afl->infoexec)) {

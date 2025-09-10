@@ -3020,6 +3020,7 @@ int main(int argc, char **argv_orig, char **envp) {
   u8  skipped_fuzz;
 
   #ifdef INTROSPECTION
+  afl->n_mut = ck_alloc(N_MUT_SIZE * sizeof(u32));
   char ifn[4096];
   snprintf(ifn, sizeof(ifn), "%s/introspection.txt", afl->out_dir);
   if ((afl->introspection_file = fopen(ifn, "w")) == NULL) {
@@ -3184,21 +3185,21 @@ int main(int argc, char **argv_orig, char **envp) {
       }
 
   #ifdef INTROSPECTION
-      {
+      // {
 
-        u64 cur_time = get_cur_time();
-        fprintf(afl->introspection_file,
-                "CYCLE cycle=%llu cycle_wo_finds=%llu time_wo_finds=%llu "
-                "expand_havoc=%u queue=%u\n",
-                afl->queue_cycle, afl->cycles_wo_finds,
-                afl->longest_find_time > cur_time - afl->last_find_time
-                    ? afl->longest_find_time / 1000
-                    : ((afl->start_time == 0 || afl->last_find_time == 0)
-                           ? 0
-                           : (cur_time - afl->last_find_time) / 1000),
-                afl->expand_havoc, afl->queued_items);
+      //   u64 cur_time = get_cur_time();
+      //   fprintf(afl->introspection_file,
+      //           "CYCLE cycle=%llu cycle_wo_finds=%llu time_wo_finds=%llu "
+      //           "expand_havoc=%u queue=%u\n",
+      //           afl->queue_cycle, afl->cycles_wo_finds,
+      //           afl->longest_find_time > cur_time - afl->last_find_time
+      //               ? afl->longest_find_time / 1000
+      //               : ((afl->start_time == 0 || afl->last_find_time == 0)
+      //                      ? 0
+      //                      : (cur_time - afl->last_find_time) / 1000),
+      //           afl->expand_havoc, afl->queued_items);
 
-      }
+      // }
 
   #endif
 
@@ -3304,38 +3305,38 @@ int main(int argc, char **argv_orig, char **envp) {
 
       skipped_fuzz = fuzz_one(afl);
   #ifdef INTROSPECTION
-      ++afl->queue_cur->stats_selected;
+      // ++afl->queue_cur->stats_selected;
 
-      if (unlikely(skipped_fuzz)) {
+      // if (unlikely(skipped_fuzz)) {
 
-        ++afl->queue_cur->stats_skipped;
+      //   ++afl->queue_cur->stats_skipped;
 
-      } else {
+      // } else {
 
-        if (unlikely(afl->queued_items > stat_prev_queued_items)) {
+      //   if (unlikely(afl->queued_items > stat_prev_queued_items)) {
 
-          afl->queue_cur->stats_finds +=
-              afl->queued_items - stat_prev_queued_items;
-          stat_prev_queued_items = afl->queued_items;
+      //     afl->queue_cur->stats_finds +=
+      //         afl->queued_items - stat_prev_queued_items;
+      //     stat_prev_queued_items = afl->queued_items;
 
-        }
+      //   }
 
-        if (unlikely(afl->saved_crashes > prev_saved_crashes)) {
+      //   if (unlikely(afl->saved_crashes > prev_saved_crashes)) {
 
-          afl->queue_cur->stats_crashes +=
-              afl->saved_crashes - prev_saved_crashes;
-          prev_saved_crashes = afl->saved_crashes;
+      //     afl->queue_cur->stats_crashes +=
+      //         afl->saved_crashes - prev_saved_crashes;
+      //     prev_saved_crashes = afl->saved_crashes;
 
-        }
+      //   }
 
-        if (unlikely(afl->saved_tmouts > prev_saved_tmouts)) {
+      //   if (unlikely(afl->saved_tmouts > prev_saved_tmouts)) {
 
-          afl->queue_cur->stats_tmouts += afl->saved_tmouts - prev_saved_tmouts;
-          prev_saved_tmouts = afl->saved_tmouts;
+      //     afl->queue_cur->stats_tmouts += afl->saved_tmouts - prev_saved_tmouts;
+      //     prev_saved_tmouts = afl->saved_tmouts;
 
-        }
+      //   }
 
-      }
+      // }
 
   #endif
 
@@ -3411,7 +3412,9 @@ int main(int argc, char **argv_orig, char **envp) {
   }
 
 stop_fuzzing:
-
+  #ifdef INTROSPECTION
+    fwrite(afl->n_mut, sizeof(u32), afl->n_mut_idx, afl->introspection_file);
+  #endif
   afl->force_ui_update = 1;  // ensure the screen is reprinted
   afl->stop_soon = 1;        // ensure everything is written
   show_stats(afl);           // print the screen one last time
@@ -3520,7 +3523,7 @@ stop_fuzzing:
   fclose(afl->fsrv.plot_file);
 
   #ifdef INTROSPECTION
-  fclose(afl->fsrv.det_plot_file);
+  // fclose(afl->fsrv.det_plot_file);
   #endif
 
   if (!afl->afl_env.afl_no_fastresume) {

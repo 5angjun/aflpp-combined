@@ -6,9 +6,9 @@
 //#include "debug.h"
 #include "afl-fuzz.h"
 
-#ifdef  INTROSPECTION
-  const char *introspection_ptr;
-#endif
+// #ifdef  INTROSPECTION
+//   const char *introspection_ptr;
+// #endif
 
 afl_state_t *afl_struct;
 
@@ -140,13 +140,13 @@ extern "C" size_t afl_custom_fuzz(my_mutator_t *data, uint8_t *buf,
 
 }
 
-#ifdef  INTROSPECTION
-extern "C" const char* afl_custom_introspection(my_mutator_t *data) {
+// #ifdef  INTROSPECTION
+// extern "C" const char* afl_custom_introspection(my_mutator_t *data) {
 
-  return introspection_ptr;
+//   return introspection_ptr;
 
-}
-#endif
+// }
+// #endif
 
 /**
  * Deinitialize everything

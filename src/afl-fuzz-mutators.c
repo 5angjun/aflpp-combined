@@ -233,16 +233,16 @@ struct custom_mutator *load_custom_mutator(afl_state_t *afl, const char *fn) {
 
   /* "afl_custom_introspection", optional */
 #ifdef INTROSPECTION
-  mutator->afl_custom_introspection = dlsym(dh, "afl_custom_introspection");
-  if (!mutator->afl_custom_introspection) {
+  // mutator->afl_custom_introspection = dlsym(dh, "afl_custom_introspection");
+  // if (!mutator->afl_custom_introspection) {
 
-    ACTF("optional symbol 'afl_custom_introspection' not found.");
+  //   ACTF("optional symbol 'afl_custom_introspection' not found.");
 
-  } else {
+  // } else {
 
-    OKF("Found 'afl_custom_introspection'.");
+  //   OKF("Found 'afl_custom_introspection'.");
 
-  }
+  // }
 
 #endif
 

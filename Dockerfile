@@ -88,7 +88,7 @@ ARG CXX=g++-$GCC_VERSION
 ARG TEST_BUILD
 
 RUN sed -i.bak 's/^	-/	/g' GNUmakefile && \
-    make clean && make distrib && \
+    make clean && make -j INTROSPECTION=1 && \
     ([ "${TEST_BUILD}" ] || (make install)) && \
     mv GNUmakefile.bak GNUmakefile
 

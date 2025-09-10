@@ -1076,9 +1076,9 @@ void Fuzzer::MinimizeCrashLoop(const Unit &U) {
 
 }  // namespace fuzzer
 
-#ifdef  INTROSPECTION
-  extern const char *introspection_ptr;
-#endif
+// #ifdef  INTROSPECTION
+//   extern const char *introspection_ptr;
+// #endif
 
 extern "C" {
 
@@ -1088,9 +1088,9 @@ ATTRIBUTE_INTERFACE size_t LLVMFuzzerMutate(uint8_t *Data, size_t Size,
   assert(fuzzer::F);
   fuzzer::F->GetMD().StartMutationSequence();
   size_t r = fuzzer::F->GetMD().DefaultMutate(Data, Size, MaxSize);
-#ifdef  INTROSPECTION
-  introspection_ptr = fuzzer::F->GetMD().WriteMutationSequence();
-#endif
+// #ifdef  INTROSPECTION
+//   introspection_ptr = fuzzer::F->GetMD().WriteMutationSequence();
+// #endif
   return r;
 
 }
