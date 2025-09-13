@@ -2374,7 +2374,10 @@ void setup_dirs_fds(afl_state_t *afl) {
             "# relative_time, cycles_done, cur_item, corpus_count, "
             "pending_total, pending_favs, map_size, saved_crashes, "
             "saved_hangs, max_depth, execs_per_sec, total_execs, edges_found, "
-            "total_crashes, total_gen, servers_count");
+            "total_crashes, total_gen, f0, f1, f2, f3, f4, f5, f6, f7, f8, f9, f10, other, "
+            "mean_local_good_turing, mean_local_laplace, "
+            "good_turing, laplce, "
+            "servers_count");
 
     if (afl->san_binary_length) {
 

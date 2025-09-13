@@ -517,18 +517,15 @@ u8 __attribute__((hot)) save_if_interesting(afl_state_t *afl, void *mem,
 
   /* Generating a hash on every input is super expensive. Bad idea and should
      only be used for special schedules */
-  if (unlikely(afl->schedule >= FAST && afl->schedule <= RARE)) {
+  classify_counts(&afl->fsrv);
+  classified = 1;
+  need_hash = 0;
+  cksum = hash64(afl->fsrv.trace_bits, afl->fsrv.map_size, HASH_CONST);
 
-    classify_counts(&afl->fsrv);
-    need_hash = 0;
+  /* Saturated increment */
+  if (likely(afl->n_fuzz[cksum % N_FUZZ_SIZE] < 0xFFFFFFFF))
+    afl->n_fuzz[cksum % N_FUZZ_SIZE]++;
 
-    cksum = hash64(afl->fsrv.trace_bits, afl->fsrv.map_size, HASH_CONST);
-
-    /* Saturated increment */
-    if (likely(afl->n_fuzz[cksum % N_FUZZ_SIZE] < 0xFFFFFFFF))
-      afl->n_fuzz[cksum % N_FUZZ_SIZE]++;
-
-  }
 
   /* Only "normal" inputs seem interested to us */
   if (likely(fault == afl->crash_mode)) {

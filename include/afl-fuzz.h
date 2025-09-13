@@ -223,6 +223,8 @@ struct queue_entry {
       is_ascii,                         /* Is the input just ascii text?    */
       disabled;                         /* Is disabled from fuzz selection  */
 
+  double select_prob;
+
   u32 bitmap_size,                      /* Number of bits set in bitmap     */
 #ifdef INTROSPECTION
       stats_selected,                   /* stats: how often selected        */
@@ -785,7 +787,7 @@ typedef struct afl_state {
   u64 plot_prev_qc, plot_prev_uc, plot_prev_uh, plot_prev_ed;
 
   u64 stats_last_stats_ms, stats_last_plot_ms, stats_last_queue_ms,
-      stats_last_ms, stats_last_execs;
+      stats_last_ms, stats_last_execs, stats_last_update_species_ms;
 
   /* StatsD */
   u64                statsd_last_send_ms;
@@ -866,6 +868,17 @@ typedef struct afl_state {
 
   s64 last_scored_idx;           /* Index of the last queue entry re-scored */
 
+  long double mean_good_turing;
+  long double mean_laplace;
+
+  u32 frequency_array[12];
+  long double good_turing;
+  long double laplace;
+
+  #define N_MUT_SIZE (1 << 21)
+  u32 *n_mut;
+  u32 n_mut_idx;
+  u64 gen_tc_total;
 #ifdef INTROSPECTION
   char  mutation[8072];
   char  m_tmp[4096];
@@ -873,10 +886,6 @@ typedef struct afl_state {
   u32   bitsmap_size;
   u32   mutated_bytes;
   u32   spliced_bytes;
-  #define N_MUT_SIZE (1 << 21)
-  u32 *n_mut;
-  u32 n_mut_idx;
-  u64 gen_tc_total;
 #endif
 
 } afl_state_t;

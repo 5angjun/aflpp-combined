@@ -572,20 +572,60 @@ void maybe_update_plot_file(afl_state_t *afl, u32 t_bytes, double bitmap_cvg,
   afl->plot_prev_md = afl->max_depth;
   afl->plot_prev_ed = afl->fsrv.total_execs;
 
+
+  /* Fuzzability */
+
+  if ( get_cur_time()-afl->stats_last_update_species_ms > 1000*5*60 && afl->fsrv.total_execs > 0 && afl->queued_items > 1) {
+    afl->stats_last_update_species_ms = get_cur_time();
+    memset(afl->frequency_array, 0, sizeof(u32)*12);
+    
+    // counting frequency
+    for(int z=0; z < afl->queued_items; z++){
+      if(afl->n_fuzz[afl->queue_buf[z]->n_fuzz_entry]<=10) {
+        afl->frequency_array[afl->n_fuzz[afl->queue_buf[z]->n_fuzz_entry]]++;
+      }
+    }
+
+    afl->mean_laplace = 0;
+    afl->mean_good_turing = 0;
+    /* this is for mean local estimators */
+    for(int z=0; z < afl->queued_items; z++){
+      afl->mean_laplace += (long double)afl->queue_buf[z]->select_prob / (afl->queue_buf[z]->fuzz_level +2);
+
+      /* this is for mean local good turing */
+      if(afl->queue_buf[z]->fuzz_level == 0)
+        afl->mean_good_turing += (long double)afl->queue_buf[z]->select_prob;
+      else if(afl->n_fuzz[afl->queue_buf[z]->n_fuzz_entry] == 0)
+        afl->mean_good_turing += (long double)afl->queue_buf[z]->select_prob / (afl->queue_buf[z]->fuzz_level +2);
+      else
+        afl->mean_good_turing += (long double)afl->n_fuzz[afl->queue_buf[z]->n_fuzz_entry] / afl->queue_buf[z]->fuzz_level;
+    }
+
+    afl->laplace = 1 / (long double)(afl->fsrv.total_execs + 2);
+    afl->good_turing = (long double)afl->frequency_array[1] / (long double)afl->fsrv.total_execs;
+
+  }
+
   /* Fields in the file:
 
      relative_time, afl->cycles_done, cur_item, corpus_count, corpus_not_fuzzed,
      favored_not_fuzzed, saved_crashes, saved_hangs, max_depth,
-     execs_per_sec, edges_found */
+     execs_per_sec, total_gen, f0~f10, other, mean local good turing, mean local
+     laplace, good turing, laplce, edges_found */
 
   fprintf(afl->fsrv.plot_file,
           "%llu, %llu, %u, %u, %u, %u, %0.02f%%, %llu, %llu, %u, %0.02f, %llu, "
-          "%u, %llu, %llu, %u",
+          "%u, %llu, %llu, %u, %u, %u, %u, %u, %u, %u, %u, %u, %u, %u, %u, %Le, %Le, %Le, %Le, %u",
           ((afl->prev_run_time + get_cur_time() - afl->start_time) / 1000),
           afl->queue_cycle - 1, afl->current_entry, afl->queued_items,
           afl->pending_not_fuzzed, afl->pending_favored, bitmap_cvg,
           afl->saved_crashes, afl->saved_hangs, afl->max_depth, eps,
           afl->plot_prev_ed, t_bytes, afl->total_crashes, afl->gen_tc_total,
+          afl->frequency_array[0], afl->frequency_array[1], afl->frequency_array[2],
+          afl->frequency_array[3], afl->frequency_array[4], afl->frequency_array[5],
+          afl->frequency_array[6], afl->frequency_array[7], afl->frequency_array[8],
+          afl->frequency_array[9], afl->frequency_array[10], afl->frequency_array[11],
+          afl->mean_good_turing, afl->mean_laplace, afl->good_turing, afl->laplace,
           (u32)afl->san_binary_length);                    /* ignore errors */
 
   for (u32 i = 0; i < afl->san_binary_length; i++) {

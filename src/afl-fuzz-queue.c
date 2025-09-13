@@ -417,7 +417,18 @@ void create_alias_table(afl_state_t *afl) {
   afl->queue_buf[i]->perf_score, afl->queue_buf[i]->weight,
             afl->queue_buf[i]->fname);
   */
+  for (u32 i = 0; i < n; i++) {
+    double p = afl->alias_probability[i] / n;  // 직접 선택될 확률
+ 
+    for (u32 j = 0; j < n; j++) {
+      if (afl->alias_table[j] == i && j != i) {
+        p += (1.0 - afl->alias_probability[j]) / n;  // alias로 선택될 확률
+      }
+    }
 
+    afl->queue_buf[i]->select_prob = p;
+    //fprintf(stderr, "seed %d (file: %s): %.8f\n", i, afl->queue_buf[i]->fname, p);
+  }
 }
 
 /* Mark deterministic checks as done for a particular queue entry. We use the

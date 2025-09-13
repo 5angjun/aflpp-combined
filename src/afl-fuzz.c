@@ -1737,11 +1737,7 @@ int main(int argc, char **argv_orig, char **envp) {
   if (afl->shm.cmplog_mode) { OKF("CmpLog level: %u", afl->cmplog_lvl); }
 
   /* Dynamically allocate memory for AFLFast schedules */
-  if (afl->schedule >= FAST && afl->schedule <= RARE) {
-
-    afl->n_fuzz = ck_alloc(N_FUZZ_SIZE * sizeof(u32));
-
-  }
+  afl->n_fuzz = ck_alloc(N_FUZZ_SIZE * sizeof(u32));
 
   if (afl->cycle_schedules) {
 
